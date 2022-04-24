@@ -1,0 +1,76 @@
+name: Lint and Test
+
+on: [push]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6
+
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 15.x
+
+      - name: Install
+        run: |
+          pnpm i
+
+      - name: Build site
+        run: |
+          pnpm run build
+
+      - name: Lint
+        run: |
+          pnpm lint
+
+      - name: Jest Tests
+        run: |
+          pnpm test
+
+      - name: Playwright Tests
+        run: |
+          pnpx playwright install --with-deps
+          pnpm test:ui
+
+      - name: Create Slack message - Success
+        run: |
+          echo -ne "SLACK_MESSAGE=🚀 Lint and Test Success - \`${GITHUB_REF##*/}\`" >> $GITHUB_ENV
+
+      - name: Slack Notification
+        uses: markgaze/action-slack-notify@master
+        env:
+          SLACK_ICON: https://avatars.githubusercontent.com/in/15368?s=88&v=4
+          SLACK_USERNAME: 'GitHub Actions'
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Create Slack message - Failure
+        if: failure()
+        run: |
+
+          echo -ne "SLACK_MESSAGE=👎🏼 Lint and Test Failed - \`${GITHUB_REF##*/}\`" >> $GITHUB_ENV
+
+      - name: Failure Notification
+        if: failure()
+        uses: markgaze/action-slack-notify@master
+        env:
+          SLACK_COLOR: '#cc0000'
+          SLACK_ICON: https://avatars.githubusercontent.com/in/15368?s=88&v=4
+          SLACK_USERNAME: 'GitHub Actions'
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
