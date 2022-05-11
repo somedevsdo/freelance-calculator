@@ -6,6 +6,7 @@ const config: PlaywrightTestConfig = {
   retries: process.env.CI ? 2 : 0,
   use: {
     trace: 'on-first-retry',
+    baseURL: 'http://localhost:3002',
   },
   testMatch: ['**/tests/*.spec.ts'],
   projects: [
