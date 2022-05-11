@@ -1,11 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import { injectAxe, checkA11y } from 'axe-playwright';
-
-test('homepage test', async ({ page }) => {
-  await page.goto('http://localhost:3000');
-  const title = page.locator('a');
-  await expect(title).toHaveText('somedevsdo');
-});
 
 test('accessibility test', async ({ page }) => {
   await page.goto('http://localhost:3000');
