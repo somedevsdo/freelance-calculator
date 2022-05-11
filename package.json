@@ -11,7 +11,8 @@
     "lint": "next lint && prettier --check \"**/*.{ts,tsx,scss,md}\"",
     "format": "prettier --write \"**/*.{ts,tsx,scss,md}\" && eslint --fix --ext .ts --ext .tsx .",
     "playwright": "playwright test",
-    "test:ui": "start-server-and-test dev http://localhost:3000 playwright",
+    "playwright-dev": "next dev -p 3002",
+    "test:ui": "start-server-and-test playwright-dev 3002 playwright",
     "prepare": "husky install",
     "pre-commit": "pnpm test && lint-staged"
   },
